@@ -7,5 +7,18 @@ Screenshot
 
 Installing
 --
- A PowerShell cookie eater tool for Windows environment
+You can download the latest archive by clicking [here](https://github.com/D3vil0per/cookey/archive/refs/heads/main.zip).
+
+Preferably, you can download sqlmap by cloning the [Git](https://github.com/sqlmapproject/sqlmap) repository:
+
+    gh repo clone D3vil0per/cookey
+
+cookey works out of the box with [PowerShell](https://docs.microsoft.com/en-us/powershell/) version **5.1**.
+
+cookey requires PSSQLite PowerShell module from PSGallery repository to work correctly.
+Open a PowerShell terminal as Administrator and type:
+
+```powershell
+Install-Module PSSQLite
+```
 
