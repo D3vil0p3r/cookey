@@ -3,7 +3,7 @@
 
 Screenshot
 --
-![Screenshot](https://github.com/D3vil0per/cookey/images/example.png)
+![Screenshot](https://github.com/D3vil0per/cookey/blob/main/images/example.png)
 
 Installing
 --
