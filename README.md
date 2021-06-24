@@ -33,4 +33,4 @@ Usage
 
 Keep attention!
 ----
-The "Import" features does still not work. Some browsers store cookies in encrypted ways so the results will be encrypted but the user can search for online programs to encrypt them.
+The "Import" features does still not work. Some browsers store cookies in encrypted way so the results will be encrypted but the user can search for online programs to decrypt them.
