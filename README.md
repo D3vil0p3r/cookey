@@ -13,7 +13,7 @@ Installing
 --
 You can download the latest archive by clicking [here](https://github.com/D3vil0per/cookey/archive/refs/heads/main.zip).
 
-Preferably, you can download sqlmap by cloning the [Git](https://github.com/sqlmapproject/sqlmap) repository:
+Preferably, you can download cookey by cloning the [Git](https://github.com/D3vil0per/cookey) repository:
 
     gh repo clone D3vil0per/cookey
 
