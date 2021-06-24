@@ -7,7 +7,7 @@
 
 Screenshot
 --
-![Screenshot](https://github.com/D3vil0per/cookey/blob/main/images/screenshot.png)
+![Screenshot](https://github.com/D3vil0per/cookey/blob/main/images/screen.png)
 
 Installing
 --
