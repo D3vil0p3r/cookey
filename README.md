@@ -27,7 +27,9 @@ Install-Module PSSQLite
 ```
 Usage
 ----
-    PS C:\<path>\> .\cookey.ps1
+```powershell
+    PS C:\> .\cookey.ps1 -Dump -Browser <Chrome|Firefox|Edge> -Domain <domain1,domain2,domain3,...> -CookieName <name1,name2,...>
+```
 
 Keep attention!
 ----

