@@ -93,7 +93,6 @@ function PrintResult ($browser,$cookie)
         Write-Host "COOKIE PATH: " -ForegroundColor Green -NoNewline; Write-Host "$($i.path)" -ForegroundColor Yellow
         if ($($browser.requireEncryption))
         {
-            Write-Host "COOKIE ENCRYPTED VALUE [HEX]: " -ForegroundColor Green -NoNewline; Write-Host "$(($($i.$($browser.valuecolumn)) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
             Write-Host "|---> SIGNATURE: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$($browser.valuecolumn))[0..2]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
             Write-Host "|---> IV: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$($browser.valuecolumn))[3..14]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
             Write-Host "|---> ENCRYPTED DATA: " -ForegroundColor Green -NoNewline; Write-Host "$(($($($i.$($browser.valuecolumn))[15..($($i.$($browser.valuecolumn)).Length-1-16)]) | ForEach-Object ToString X2) -join '')" -ForegroundColor Yellow
