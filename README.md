@@ -19,12 +19,7 @@ Preferably, you can download cookey by cloning the [Git](https://github.com/D3vi
 
 cookey has been tested with [PowerShell](https://docs.microsoft.com/en-us/powershell/) version **5.1**.
 
-cookey requires PSSQLite PowerShell module from PSGallery repository to work correctly.
-Open a PowerShell terminal as Administrator and type:
 
-```powershell
-Install-Module PSSQLite
-```
 Usage
 ----
 ```powershell

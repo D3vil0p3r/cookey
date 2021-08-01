@@ -26,12 +26,23 @@ Param(
         [Parameter()][string[]]$CookieName
 )
 
-Import-Module PSSQLite
+
+Add-Type -Assembly System.Security
+
+if((gwmi win32_operatingsystem | select osarchitecture).osarchitecture -eq "64-bit")
+{
+    Add-Type -Path "$PSScriptRoot\x64\System.Data.SQLite.dll"
+}
+else
+{
+    Add-Type -Path "$PSScriptRoot\x86\System.Data.SQLite.dll"
+}
+
+Import-Module $PSScriptRoot\lib\Invoke-SqliteQuery
 Import-Module $PSScriptRoot\lib\banner
 Import-Module $PSScriptRoot\lib\datatype
 Import-Module $PSScriptRoot\lib\modules
 
-Add-Type -Assembly System.Security
 Show-Banner
 
 $object = New-Browser

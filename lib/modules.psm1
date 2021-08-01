@@ -107,6 +107,8 @@ function PrintResult ($browser,$cookie)
     }
 }
 
+
+<#
 function importCookieDB ($Database,$DBTable)
 {
     $inputcookieDB = Read-Host "Please, insert the input cookie's path (for relative path, please use .\)"
@@ -138,3 +140,4 @@ function importCookieDB ($Database,$DBTable)
         }
     }
 }
+#>
